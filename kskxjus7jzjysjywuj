@@ -1,0 +1,43 @@
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local Button = Instance.new("TextButton", ScreenGui)
+
+Button.Size = UDim2.new(0, 150, 0, 50)
+Button.Position = UDim2.new(0.5, -100, 0.5, -25)
+Button.Text = "Auto Kill Npc: OFF"
+Button.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+Button.TextColor3 = Color3.new(1, 1, 1)
+Button.Font = Enum.Font.SourceSans
+Button.TextSize = 20
+Button.Active = true
+Button.Draggable = true
+
+getgenv().G = false
+local running = false
+
+Button.MouseButton1Click:Connect(function()
+    getgenv().G = not getgenv().G
+    Button.Text = "Auto Kill Npc: " .. (getgenv().G and "ON" or "OFF")
+    
+    if getgenv().G and not running then
+        running = true
+        task.spawn(function()
+            while getgenv().G do
+                wait(0.1)
+                pcall(function()
+                    sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", 112412400000)
+                    sethiddenproperty(game.Players.LocalPlayer, "MaxSimulationRadius", 112412400000)
+                    
+                    for _, d in pairs(workspace:GetDescendants()) do
+                        if d:IsA("Humanoid") then
+                            local model = d.Parent
+                            if not game.Players:GetPlayerFromCharacter(model) then
+                                d.Health = 0
+                            end
+                        end
+                    end
+                end)
+            end
+            running = false
+        end)
+    end
+end)
